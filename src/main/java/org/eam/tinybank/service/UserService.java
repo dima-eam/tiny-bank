@@ -28,7 +28,7 @@ public class UserService {
     public ApiResponse deactivate(String email) {
         return userDao.deactivate(email)
             .map(u -> ApiResponse.deactivated())
-            .orElseGet(ApiResponse::notFound);
+            .orElseGet(() -> ApiResponse.userNotFound(email));
     }
 
     private ApiResponse create(User user) {

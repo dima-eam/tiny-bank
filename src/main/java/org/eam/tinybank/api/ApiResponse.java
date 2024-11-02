@@ -3,8 +3,9 @@ package org.eam.tinybank.api;
 import lombok.NonNull;
 
 /**
- * Encapsulates the result of user endpoint calls. NOTE that it is expected that class instances are created via factory
- * methods, rather that constructor calls.
+ * Encapsulates the result of endpoint calls. NOTE that it is expected that class instances are created via factory
+ * methods, rather that constructor calls. Right now all possible responses are defined here, but later may be divided
+ * into domain related subclasses, e.g. {@code UserApiResponse}.
  */
 public record ApiResponse(@NonNull String message, @NonNull Status status) {
 
@@ -28,8 +29,16 @@ public record ApiResponse(@NonNull String message, @NonNull Status status) {
         return new ApiResponse("User was deactivated", Status.SUCCESS);
     }
 
-    public static ApiResponse notFound() {
-        return new ApiResponse("User not found", Status.FAIL);
+    public static ApiResponse deposited() {
+        return new ApiResponse("Account was deposited", Status.SUCCESS);
+    }
+
+    public static ApiResponse userNotFound(@NonNull String email) {
+        return new ApiResponse("User not found: email=%s".formatted(email), Status.FAIL);
+    }
+
+    public static ApiResponse accountNotFound(@NonNull String email) {
+        return new ApiResponse("Account not found: email=%s".formatted(email), Status.FAIL);
     }
 
     public static ApiResponse inactive() {
