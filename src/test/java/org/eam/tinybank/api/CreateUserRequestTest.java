@@ -1,24 +1,22 @@
 package org.eam.tinybank.api;
 
 
+import static org.eam.tinybank.util.CommonJsonMapper.INSTANCE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 class CreateUserRequestTest {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-
     @Test
     void shouldSerializeDeserialize() throws Exception {
         var request = new CreateUserRequest("test", "test", "test@test.com");
-        var bytes = MAPPER.writeValueAsBytes(request);
+        var bytes = INSTANCE.writeValueAsBytes(request);
 
-        var deserialized = MAPPER.readValue(bytes, CreateUserRequest.class);
+        var deserialized = INSTANCE.readValue(bytes, CreateUserRequest.class);
         assertEquals(request, deserialized);
     }
 

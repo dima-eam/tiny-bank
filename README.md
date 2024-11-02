@@ -24,4 +24,6 @@ Implementation has the following assumptions:
 1. In-memory storage is custom and based on Java map, and not an embedded database (like H2)
 2. There are no complex input validations
 3. REST endpoints are not secured
-4. String messages are hardcoded in place
+4. REST endpoint calls are synchronous
+5. String messages are hardcoded in place
+6. There are no real integration tests, only MockMVC ones

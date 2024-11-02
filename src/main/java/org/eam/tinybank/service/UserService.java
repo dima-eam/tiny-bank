@@ -17,9 +17,18 @@ public class UserService {
 
     private final UserDao userDao;
 
+    /**
+     * Checks if request is valid, and stores new user record. If user email exists, returns a specific message.
+     */
     public UserResponse create(CreateUserRequest request) {
         return invalid(request)
             .orElseGet(() -> stored(request));
+    }
+
+    public UserResponse deactivate(String email) {
+        return userDao.deactivate(email)
+            .map(user -> UserResponse.deactivated())
+            .orElseGet(UserResponse::notFound);
     }
 
     private static Optional<UserResponse> invalid(CreateUserRequest request) {
@@ -27,9 +36,9 @@ public class UserService {
     }
 
     private UserResponse stored(CreateUserRequest request) {
-        userDao.store(User.from(request));
-
-        return UserResponse.created();
+        return userDao.store(User.from(request))
+            .map(user -> UserResponse.exists())
+            .orElseGet(UserResponse::created);
     }
 
 }

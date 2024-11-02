@@ -12,8 +12,16 @@ public record UserResponse(@NonNull String message, @NonNull Status status) {
         return new UserResponse("User was created", Status.SUCCESS);
     }
 
+    public static UserResponse exists() {
+        return new UserResponse("User exists", Status.SUCCESS);
+    }
+
     public static UserResponse deactivated() {
         return new UserResponse("User was deactivated", Status.SUCCESS);
+    }
+
+    public static UserResponse notFound() {
+        return new UserResponse("User not found", Status.FAIL);
     }
 
     public static UserResponse error(String message) {
