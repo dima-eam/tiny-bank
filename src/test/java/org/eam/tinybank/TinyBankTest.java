@@ -9,12 +9,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Random;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.eam.tinybank.api.CreateAccountRequest;
 import org.eam.tinybank.api.CreateUserRequest;
 import org.eam.tinybank.api.DepositRequest;
+import org.eam.tinybank.api.WithdrawRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -90,12 +91,19 @@ class TinyBankTest {
                 put("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest)))
             .andExpect(status().isOk());
 
-        var amount = BigDecimal.valueOf(RANDOM.nextDouble() * 100);
+        var amount = BigDecimal.valueOf(RANDOM.nextDouble() * 100).setScale(2, RoundingMode.HALF_UP);
         var depositRequest = new DepositRequest(userRequest.email(), amount);
         mockMvc.perform(
                 post("/api/account/deposit").contentType(APPLICATION_JSON_VALUE).content(asString(depositRequest)))
             .andExpect(status().isOk())
-            .andExpect(content().string(containsString("Account was deposited")));
+            .andExpect(content().string(containsString("Account was deposited: balance=" + amount)));
+
+        amount = amount.subtract(BigDecimal.TEN);
+        var withdrawRequest = new WithdrawRequest(userRequest.email(), amount);
+        mockMvc.perform(
+                post("/api/account/withdraw").contentType(APPLICATION_JSON_VALUE).content(asString(withdrawRequest)))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Account was withdrawed: balance=10.00")));
     }
 
     private static CreateUserRequest createUserRequest() {

@@ -18,4 +18,8 @@ public class AccountDao extends InMemoryDao<String, Account> {
         return updated(email, account -> account.deposited(amount));
     }
 
+    public Optional<Account> withdraw(@NonNull String email, @NonNull BigDecimal amount) {
+        return updated(email, account -> account.withdrawed(amount));
+    }
+
 }

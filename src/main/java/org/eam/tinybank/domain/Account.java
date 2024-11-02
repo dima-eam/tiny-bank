@@ -16,4 +16,8 @@ public record Account(@NonNull String email, @NonNull BigDecimal balance) {
         return new Account(email, balance.add(amount));
     }
 
+    public Account withdrawed(@NonNull BigDecimal amount) {
+        return new Account(email, balance.subtract(amount));
+    }
+
 }

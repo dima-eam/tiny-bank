@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import org.eam.tinybank.api.ApiResponse;
 import org.eam.tinybank.api.CreateAccountRequest;
 import org.eam.tinybank.api.DepositRequest;
+import org.eam.tinybank.api.WithdrawRequest;
 import org.eam.tinybank.service.AccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,6 +34,11 @@ class AccountController implements RestSupport {
     @PostMapping(path = "deposit", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     ResponseEntity<ApiResponse> deposit(@RequestBody DepositRequest request) {
         return responseFrom(accountService.deposit(request));
+    }
+
+    @PostMapping(path = "withdraw", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    ResponseEntity<ApiResponse> deposit(@RequestBody WithdrawRequest request) {
+        return responseFrom(accountService.withdraw(request));
     }
 
 }

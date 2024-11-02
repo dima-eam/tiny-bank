@@ -1,5 +1,6 @@
 package org.eam.tinybank.api;
 
+import java.math.BigDecimal;
 import lombok.NonNull;
 
 /**
@@ -29,8 +30,12 @@ public record ApiResponse(@NonNull String message, @NonNull Status status) {
         return new ApiResponse("User was deactivated", Status.SUCCESS);
     }
 
-    public static ApiResponse deposited() {
-        return new ApiResponse("Account was deposited", Status.SUCCESS);
+    public static ApiResponse deposited(@NonNull BigDecimal balance) {
+        return new ApiResponse("Account was deposited: balance=%s".formatted(balance.toPlainString()), Status.SUCCESS);
+    }
+
+    public static ApiResponse withdrawed(@NonNull BigDecimal balance) {
+        return new ApiResponse("Account was withdrawed: balance=%s".formatted(balance.toPlainString()), Status.SUCCESS);
     }
 
     public static ApiResponse userNotFound(@NonNull String email) {

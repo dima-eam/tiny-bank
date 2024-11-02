@@ -18,8 +18,9 @@ From a technical perspective:
 ## API Reference
 
 Current implementation manages two domains: user and account. Each user may have only one account (for simplicity’s
-sake)
-and both user and their account are identified by email. That is, even in case of transfer only emails are needed.
+sake) and both user and their account are identified by email. That is, even in case of transfer only emails are needed.
+To start making operations with account, each user must create user profile first, and account second. This was done to
+avoid potential problems when creating both atomically.
 
 ### User API
 
