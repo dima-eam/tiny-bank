@@ -1,6 +1,7 @@
 package org.eam.tinybank.dao;
 
 import java.util.Optional;
+import lombok.NonNull;
 import org.eam.tinybank.domain.User;
 import org.springframework.stereotype.Component;
 
@@ -11,11 +12,15 @@ import org.springframework.stereotype.Component;
 public class UserDao extends InMemoryDao<String, User> {
 
     public Optional<User> store(User user) {
-        return store(user.email(), user);
+        return stored(user.email(), user);
     }
 
     public Optional<User> deactivate(String email) {
-        return update(email, User::deactivated);
+        return updated(email, User::deactivated);
+    }
+
+    public Optional<User> retrieve(@NonNull String email) {
+        return retrieved(email);
     }
 
 }

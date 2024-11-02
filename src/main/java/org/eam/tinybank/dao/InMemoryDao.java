@@ -18,15 +18,22 @@ abstract class InMemoryDao<K, V> {
     /**
      * Stores given value, if it is not in the storage. Returns empty optional if record is <b>new</b>.
      */
-    Optional<V> store(K key, V value) {
+    protected Optional<V> stored(K key, V value) {
         return Optional.ofNullable(STORE.putIfAbsent(key, value));
     }
 
     /**
      * Replaces value for a given key, if it was stored before. Returns empty optional if record is <b>not found</b>.
      */
-    Optional<V> update(K key, Function<V, V> valueMapper) {
+    protected Optional<V> updated(K key, Function<V, V> valueMapper) {
         return Optional.ofNullable(STORE.computeIfPresent(key, (k, v) -> valueMapper.apply(v)));
+    }
+
+    /**
+     * Retrieves a value by given key. Returns empty optional if record is <b>not found</b>.
+     */
+    protected Optional<V> retrieved(K key) {
+        return Optional.ofNullable(STORE.get(key));
     }
 
 }

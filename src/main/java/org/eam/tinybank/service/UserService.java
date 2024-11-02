@@ -2,8 +2,8 @@ package org.eam.tinybank.service;
 
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import org.eam.tinybank.api.ApiResponse;
 import org.eam.tinybank.api.CreateUserRequest;
-import org.eam.tinybank.api.UserResponse;
 import org.eam.tinybank.dao.UserDao;
 import org.eam.tinybank.domain.User;
 import org.springframework.stereotype.Component;
@@ -20,25 +20,25 @@ public class UserService {
     /**
      * Checks if request is valid, and stores new user record. If user email exists, returns a specific message.
      */
-    public UserResponse create(CreateUserRequest request) {
+    public ApiResponse create(CreateUserRequest request) {
         return invalid(request)
-            .orElseGet(() -> stored(request));
+            .orElseGet(() -> create(User.from(request)));
     }
 
-    public UserResponse deactivate(String email) {
+    public ApiResponse deactivate(String email) {
         return userDao.deactivate(email)
-            .map(user -> UserResponse.deactivated())
-            .orElseGet(UserResponse::notFound);
+            .map(u -> ApiResponse.deactivated())
+            .orElseGet(ApiResponse::notFound);
     }
 
-    private static Optional<UserResponse> invalid(CreateUserRequest request) {
-        return request.validEmail() ? Optional.empty() : Optional.of(UserResponse.error("Invalid email"));
+    private ApiResponse create(User user) {
+        return userDao.store(user)
+            .map(u -> ApiResponse.userExists())
+            .orElseGet(ApiResponse::userCreated);
     }
 
-    private UserResponse stored(CreateUserRequest request) {
-        return userDao.store(User.from(request))
-            .map(user -> UserResponse.exists())
-            .orElseGet(UserResponse::created);
+    private static Optional<ApiResponse> invalid(CreateUserRequest request) {
+        return request.validEmail() ? Optional.empty() : Optional.of(ApiResponse.error("Invalid email"));
     }
 
 }

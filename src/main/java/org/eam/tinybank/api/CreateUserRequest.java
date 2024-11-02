@@ -4,8 +4,8 @@ import java.util.regex.Pattern;
 import lombok.NonNull;
 
 /**
- * Very basic representation of a user.Provide basic email validation capabilities. NOTE that in real life email
- * validation should be more strict.
+ * Very basic representation of a user data, sufficient for registration. Provide basic email validation capabilities.
+ * NOTE that in real life email validation should be more strict.
  */
 public record CreateUserRequest(@NonNull String firstname, @NonNull String lastname, @NonNull String email) {
 
@@ -16,16 +16,6 @@ public record CreateUserRequest(@NonNull String firstname, @NonNull String lastn
      */
     public boolean validEmail() {
         return EMAIL_PATTERN.matcher(email).matches();
-    }
-
-    /**
-     * Removes email to not be printed.
-     */
-    @Override
-    public String toString() {
-        return """
-            CreateUserRequest{firstname=$firstname,lastname=$lastname
-            """;
     }
 
 }

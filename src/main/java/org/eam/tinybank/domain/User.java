@@ -16,6 +16,10 @@ public record User(@NonNull String firstname, @NonNull String lastname, @NonNull
         return new User(firstname(), lastname(), email(), Status.DEACTIVATED);
     }
 
+    public boolean active() {
+        return status == Status.ACTIVATED;
+    }
+
     private enum Status {
         ACTIVATED,
         DEACTIVATED
