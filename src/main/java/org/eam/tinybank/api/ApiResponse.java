@@ -38,6 +38,10 @@ public record ApiResponse(@NonNull String message, @NonNull Status status) {
         return new ApiResponse("Account was withdrawed: balance=%s".formatted(balance.toPlainString()), Status.SUCCESS);
     }
 
+    public static ApiResponse transferred() {
+        return new ApiResponse("Funds transferred", Status.SUCCESS);
+    }
+
     public static ApiResponse userNotFound(@NonNull String email) {
         return new ApiResponse("User not found: email=%s".formatted(email), Status.FAIL);
     }

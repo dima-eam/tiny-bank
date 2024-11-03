@@ -15,6 +15,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.eam.tinybank.api.CreateAccountRequest;
 import org.eam.tinybank.api.CreateUserRequest;
 import org.eam.tinybank.api.DepositRequest;
+import org.eam.tinybank.api.TransferRequest;
 import org.eam.tinybank.api.WithdrawRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +81,9 @@ class TinyBankTest {
             .andExpect(content().string(containsString("Account exists")));
     }
 
+    /**
+     * Also tests validation and balance check.
+     */
     @Test
     void shouldDepositAndWithdraw() throws Exception {
         var userRequest = createUserRequest();
@@ -91,8 +95,15 @@ class TinyBankTest {
                 put("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest)))
             .andExpect(status().isOk());
 
-        var amount = BigDecimal.valueOf(RANDOM.nextDouble() * 100).setScale(2, RoundingMode.HALF_UP);
+        var amount = BigDecimal.ZERO;
         var depositRequest = new DepositRequest(userRequest.email(), amount);
+        mockMvc.perform(
+                post("/api/account/deposit").contentType(APPLICATION_JSON_VALUE).content(asString(depositRequest)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string(containsString("Invalid amount")));
+
+        amount = BigDecimal.valueOf(RANDOM.nextDouble() * 100).setScale(2, RoundingMode.HALF_UP);
+        depositRequest = new DepositRequest(userRequest.email(), amount);
         mockMvc.perform(
                 post("/api/account/deposit").contentType(APPLICATION_JSON_VALUE).content(asString(depositRequest)))
             .andExpect(status().isOk())
@@ -104,6 +115,53 @@ class TinyBankTest {
                 post("/api/account/withdraw").contentType(APPLICATION_JSON_VALUE).content(asString(withdrawRequest)))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("Account was withdrawed: balance=10.00")));
+
+        amount = BigDecimal.valueOf(1000).setScale(2, RoundingMode.HALF_UP);
+        withdrawRequest = new WithdrawRequest(userRequest.email(), amount);
+        mockMvc.perform(
+                post("/api/account/withdraw").contentType(APPLICATION_JSON_VALUE).content(asString(withdrawRequest)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string(containsString("Insufficient funds")));
+
+        amount = BigDecimal.ZERO;
+        withdrawRequest = new WithdrawRequest(userRequest.email(), amount);
+        mockMvc.perform(
+                post("/api/account/withdraw").contentType(APPLICATION_JSON_VALUE).content(asString(withdrawRequest)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string(containsString("Invalid amount")));
+    }
+
+    @Test
+    void shouldTransferFunds() throws Exception {
+        var userRequest1 = createUserRequest();
+        mockMvc.perform(put("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(userRequest1)))
+            .andExpect(status().isOk());
+
+        var accountRequest1 = new CreateAccountRequest(userRequest1.email());
+        mockMvc.perform(
+                put("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest1)))
+            .andExpect(status().isOk());
+
+        var amount = BigDecimal.valueOf(RANDOM.nextDouble() * 100).setScale(2, RoundingMode.HALF_UP);
+        var depositRequest = new DepositRequest(userRequest1.email(), amount);
+        mockMvc.perform(
+                post("/api/account/deposit").contentType(APPLICATION_JSON_VALUE).content(asString(depositRequest)))
+            .andExpect(status().isOk());
+
+        var userRequest2 = createUserRequest();
+        mockMvc.perform(put("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(userRequest2)))
+            .andExpect(status().isOk());
+
+        var accountRequest2 = new CreateAccountRequest(userRequest2.email());
+        mockMvc.perform(
+                put("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest2)))
+            .andExpect(status().isOk());
+
+        var transferRequest = new TransferRequest(userRequest1.email(), userRequest2.email(), BigDecimal.TEN);
+        mockMvc.perform(
+                post("/api/account/transfer").contentType(APPLICATION_JSON_VALUE).content(asString(transferRequest)))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Funds transferred")));
     }
 
     private static CreateUserRequest createUserRequest() {

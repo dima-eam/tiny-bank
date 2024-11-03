@@ -26,10 +26,24 @@ avoid potential problems when creating both atomically.
 
 Current implementation has two endpoints, allowing user creation and deactivation (but no reactivation).
 
-1. `/api/user/create` - register user in the system, using their email as primary identifier. If email already used or
-   is invalid, returns specific message.
+1. `/api/user/create` - register user in the system, using their email as primary identifier. If email is already used
+   or invalid, returns specific message (even for deactivated user)
 2. `/api/user/deactivate` - deactivates user record, but does not delete it. All subsequent operations with user account
-   are declined.
+   are declined
+
+### Account API
+
+Current implementation has six endpoints, allowing account management, getting current state, and moving funds.
+
+1. `/api/account/create` - register user account in the system, using their email as primary identifier. If email is
+   already used, returns specific message
+2. `/api/account/deposit` - increase account balance, and return current value, or error message if amount is invalid
+3. `/api/account/withdraw`- decrease account balance, and return current value, or error message if amount is invalid or
+   account has insufficient funds
+4. `/api/account/transfer`- withdraw from one account and deposit another one. If amount is invalid or account has
+   insufficient funds, returns specific message
+5. `/api/account/balance`-
+6. `/api/account/history`-
 
 ## Implementation Details
 
@@ -37,7 +51,8 @@ Java version is 21, using Java optionals, records and string interpolation. Fram
 Boot and Web, Spring Test, Lombok. Build tool is Maven, provided as a wrapper instance along with the code.
 Implementation has the following assumptions:
 
-1. In-memory storage is custom and based on Java map, and not an embedded database (like H2)
+1. In-memory storage is custom and based on Java map, and not an embedded database (like H2), thus no transaction
+   support, nor atomicity available, only thread safety
 2. There are no complex input validations
 3. REST endpoints are not secured, and there are no passwords for users
 4. REST endpoint calls are synchronous

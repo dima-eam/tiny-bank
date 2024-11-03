@@ -1,12 +1,16 @@
 package org.eam.tinybank.dao;
 
-import io.micrometer.observation.ObservationFilter;
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.function.Predicate;
 import lombok.NonNull;
+import org.eam.tinybank.api.ApiResponse;
 import org.eam.tinybank.domain.Account;
 import org.springframework.stereotype.Component;
 
+/**
+ * Encapsulated account management and fund operations at storage level. Assumed that primary key for user is email.
+ */
 @Component
 public class AccountDao extends InMemoryDao<String, Account> {
 
@@ -18,8 +22,17 @@ public class AccountDao extends InMemoryDao<String, Account> {
         return updated(email, account -> account.deposited(amount));
     }
 
-    public Optional<Account> withdraw(@NonNull String email, @NonNull BigDecimal amount) {
-        return updated(email, account -> account.withdrawed(amount));
+    /**
+     * Reduce account balance if given predicate returns 'true', otherwise account balance remains same. There is no way
+     * to report back if predicate passed, so capturing must be done outside.
+     */
+    public Optional<Account> withdraw(@NonNull String email, @NonNull BigDecimal amount,
+        Predicate<Account> canWithdraw) {
+        return updated(email, a -> canWithdraw.test(a) ? a.withdrawed(amount) : a);
+    }
+
+    public ApiResponse transfer(@NonNull String s, @NonNull String s1, @NonNull BigDecimal amount) {
+        return null;
     }
 
 }

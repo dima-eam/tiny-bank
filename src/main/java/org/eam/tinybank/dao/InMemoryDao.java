@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import org.eam.tinybank.domain.Operation;
 
 /**
  * Common generic in-memory storage, based on {@link java.util.concurrent.ConcurrentMap}, which is used to perform
@@ -28,6 +29,13 @@ abstract class InMemoryDao<K, V> {
     protected Optional<V> updated(K key, Function<V, V> valueMapper) {
         return Optional.ofNullable(STORE.computeIfPresent(key, (k, v) -> valueMapper.apply(v)));
     }
+
+    /**
+     * Replaces value for a given key, if it was stored before. Returns empty optional if record is <b>not found</b>.
+     */
+//    protected Operation<V> updatedOperation(K key, Function<V, Operation<V>> valueMapper) {
+//        return STORE.computeIfPresent(key, (k, v) -> valueMapper.apply(v).value()));
+//    }
 
     /**
      * Retrieves a value by given key. Returns empty optional if record is <b>not found</b>.

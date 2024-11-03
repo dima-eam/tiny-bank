@@ -6,6 +6,7 @@ import lombok.NonNull;
 /**
  * Encapsulates data to perform account deposit operation.
  */
-public record DepositRequest(@NonNull String email, @NonNull BigDecimal amount) implements ValidateSupport {
+public record DepositRequest(@NonNull String email, @NonNull BigDecimal amount)
+    implements SingleUserValidateSupport, AmountValidateSupport {
 
 }

@@ -2,7 +2,7 @@ package org.eam.tinybank.api;
 
 import java.math.BigDecimal;
 
-public interface ValidateSupport {
+public interface AmountValidateSupport {
 
     BigDecimal amount();
 
