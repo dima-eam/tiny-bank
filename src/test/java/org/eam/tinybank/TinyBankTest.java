@@ -164,6 +164,39 @@ class TinyBankTest {
             .andExpect(content().string(containsString("Funds transferred")));
     }
 
+    @Test
+    void shouldReturnBalanceAndHistory() throws Exception {
+        var userRequest = createUserRequest();
+        mockMvc.perform(put("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(userRequest)))
+            .andExpect(status().isOk());
+
+        var accountRequest = new CreateAccountRequest(userRequest.email());
+        mockMvc.perform(
+                put("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest)))
+            .andExpect(status().isOk());
+
+        var amount = BigDecimal.valueOf(1000).setScale(2, RoundingMode.HALF_UP);
+        var depositRequest = new DepositRequest(userRequest.email(), amount);
+        mockMvc.perform(
+                post("/api/account/deposit").contentType(APPLICATION_JSON_VALUE).content(asString(depositRequest)))
+            .andExpect(status().isOk());
+
+        amount = BigDecimal.TEN.setScale(2, RoundingMode.HALF_UP);
+        var withdrawRequest = new WithdrawRequest(userRequest.email(), amount);
+        mockMvc.perform(
+                post("/api/account/withdraw").contentType(APPLICATION_JSON_VALUE).content(asString(withdrawRequest)))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(post("/api/account/balance?email=%s".formatted(userRequest.email())))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Balance: 990.00")));
+
+        mockMvc.perform(post("/api/account/history?email=%s".formatted(userRequest.email())))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("description=Deposit, amount=1000.00")))
+            .andExpect(content().string(containsString("description=Withdraw, amount=10.00")));
+    }
+
     private static CreateUserRequest createUserRequest() {
         return new CreateUserRequest("test", "test", RandomStringUtils.randomAlphabetic(10) + "@test.com");
     }

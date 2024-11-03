@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.function.Predicate;
 import lombok.NonNull;
-import org.eam.tinybank.api.ApiResponse;
 import org.eam.tinybank.domain.Account;
 import org.springframework.stereotype.Component;
 
@@ -31,8 +30,12 @@ public class AccountDao extends InMemoryDao<String, Account> {
         return updated(email, a -> canWithdraw.test(a) ? a.withdrawed(amount) : a);
     }
 
-    public ApiResponse transfer(@NonNull String s, @NonNull String s1, @NonNull BigDecimal amount) {
-        return null;
+    public Optional<Account> transfer(@NonNull String emailFrom, @NonNull String emailTo, @NonNull BigDecimal amount) {
+        return Optional.empty();
+    }
+
+    public Optional<Account> retrieve(@NonNull String email) {
+        return retrieved(email);
     }
 
 }

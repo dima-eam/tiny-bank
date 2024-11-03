@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -45,6 +46,16 @@ class AccountController implements RestSupport {
     @PostMapping(path = "transfer", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     ResponseEntity<ApiResponse> transfer(@RequestBody TransferRequest request) {
         return responseFrom(accountService.transfer(request));
+    }
+
+    @PostMapping(path = "balance", produces = APPLICATION_JSON_VALUE)
+    ResponseEntity<ApiResponse> balance(@RequestParam String email) {
+        return responseFrom(accountService.balance(email));
+    }
+
+    @PostMapping(path = "history", produces = APPLICATION_JSON_VALUE)
+    ResponseEntity<ApiResponse> history(@RequestParam String email) {
+        return responseFrom(accountService.history(email));
     }
 
 }

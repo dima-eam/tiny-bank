@@ -46,9 +46,24 @@ public class AccountService {
     }
 
     public ApiResponse transfer(@NonNull TransferRequest request) {
-        return invalidAmount(request)
-            .or(() -> invalidUser(request))
-            .orElseGet(() -> accountDao.transfer(request.emailFrom(), request.emailTo(), request.amount()));
+        return null;
+//        return invalidAmount(request)
+//            .or(() -> invalidUser(request))
+//            .orElseGet(() -> accountDao.transfer(request.emailFrom(), request.emailTo(), request.amount()));
+    }
+
+    public ApiResponse balance(@NonNull String email) {
+        return invalidUser(email)
+            .orElseGet(() -> accountDao.retrieve(email)
+                .map(a -> ApiResponse.balance(a.balance()))
+                .orElseGet(() -> ApiResponse.accountNotFound(email)));
+    }
+
+    public ApiResponse history(@NonNull String email) {
+        return invalidUser(email)
+            .orElseGet(() -> accountDao.retrieve(email)
+                .map(a -> ApiResponse.history(a.history().asString()))
+                .orElseGet(() -> ApiResponse.accountNotFound(email)));
     }
 
     private ApiResponse create(String email) {

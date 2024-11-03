@@ -42,8 +42,9 @@ Current implementation has six endpoints, allowing account management, getting c
    account has insufficient funds
 4. `/api/account/transfer`- withdraw from one account and deposit another one. If amount is invalid or account has
    insufficient funds, returns specific message
-5. `/api/account/balance`-
-6. `/api/account/history`-
+5. `/api/account/balance`- returns account balance, or error if user is inactive, or account does not exist
+6. `/api/account/history`- returns account history of transactions, **not paginated**, or error if user is inactive, or
+   account does not exist
 
 ## Implementation Details
 
@@ -59,3 +60,4 @@ Implementation has the following assumptions:
 5. String messages are hardcoded in place
 6. There is no logging
 7. There are no real integration tests, only MockMVC ones
+8. History endpoint does not paginate results

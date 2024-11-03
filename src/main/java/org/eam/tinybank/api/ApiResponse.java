@@ -1,6 +1,7 @@
 package org.eam.tinybank.api;
 
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.NonNull;
 
 /**
@@ -54,8 +55,16 @@ public record ApiResponse(@NonNull String message, @NonNull Status status) {
         return new ApiResponse("User is inactive", Status.FAIL);
     }
 
+    public static ApiResponse balance(@NonNull BigDecimal balance) {
+        return new ApiResponse("Balance: %s".formatted(balance.toPlainString()), Status.SUCCESS);
+    }
+
     public static ApiResponse error(String message) {
         return new ApiResponse(message, Status.FAIL);
+    }
+
+    public static ApiResponse history(List<String> operations) {
+        return new ApiResponse("History: %s".formatted(operations), Status.SUCCESS);
     }
 
     public boolean failed() {
