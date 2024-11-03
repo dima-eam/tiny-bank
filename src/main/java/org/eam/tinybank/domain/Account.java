@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 /**
@@ -15,7 +17,7 @@ public record Account(@NonNull String email, @NonNull BigDecimal balance, @NonNu
      * Creates a user account record from given email, with zero balance.
      */
     public static Account from(String email) {
-        return new Account(email, BigDecimal.ZERO, History.empty());
+        return new Account(email, BigDecimal.ZERO, new History());
     }
 
     public Account deposited(@NonNull BigDecimal amount) {
@@ -30,15 +32,22 @@ public record Account(@NonNull String email, @NonNull BigDecimal balance, @NonNu
         return balance.subtract(amount).compareTo(BigDecimal.ZERO) > 0;
     }
 
+    public Account transferredTo(@NonNull BigDecimal amount, @NonNull String emailTo) {
+        return new Account(email, balance.subtract(amount), history.add(Operation.transferTo(amount, emailTo)));
+    }
+
+    public Account receivedFrom(@NonNull BigDecimal amount, @NonNull String emailFrom) {
+        return new Account(email, balance.add(amount), history.add(Operation.receiveFrom(amount, emailFrom)));
+    }
+
     /**
      * Auxiliary class holding account history. Stores entries in {@link java.util.Collections.SynchronizedList} for
-     * simplicity.
+     * simplicity, since there is no direct access to its content.
      */
-    public record History(@NonNull List<Operation> operations) {
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class History {
 
-        static History empty() {
-            return new History(Collections.synchronizedList(new ArrayList<>()));
-        }
+        private final List<Operation> operations = Collections.synchronizedList(new ArrayList<>());
 
         private History add(Operation operation) {
             operations.add(operation);
@@ -54,14 +63,25 @@ public record Account(@NonNull String email, @NonNull BigDecimal balance, @NonNu
 
     }
 
-    record Operation(long timestamp, @NonNull String description, @NonNull BigDecimal amount) {
+    /**
+     * Auxiliary class representing an account operation, either deposit, or withdraw (but no transfer).
+     */
+    private record Operation(long timestamp, @NonNull String description, @NonNull BigDecimal amount) {
 
-        static Operation deposit(@NonNull BigDecimal amount) {
+        private static Operation deposit(@NonNull BigDecimal amount) {
             return new Operation(System.currentTimeMillis(), "Deposit", amount);
         }
 
-        static Operation withdraw(@NonNull BigDecimal amount) {
+        private static Operation withdraw(@NonNull BigDecimal amount) {
             return new Operation(System.currentTimeMillis(), "Withdraw", amount);
+        }
+
+        public static Operation transferTo(@NonNull BigDecimal amount, @NonNull String emailTo) {
+            return new Operation(System.currentTimeMillis(), "Transfer to %s".formatted(emailTo), amount);
+        }
+
+        public static Operation receiveFrom(@NonNull BigDecimal amount, @NonNull String emailFrom) {
+            return new Operation(System.currentTimeMillis(), "Receive from %s".formatted(emailFrom), amount);
         }
 
     }

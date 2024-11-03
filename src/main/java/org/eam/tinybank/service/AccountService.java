@@ -46,10 +46,9 @@ public class AccountService {
     }
 
     public ApiResponse transfer(@NonNull TransferRequest request) {
-        return null;
-//        return invalidAmount(request)
-//            .or(() -> invalidUser(request))
-//            .orElseGet(() -> accountDao.transfer(request.emailFrom(), request.emailTo(), request.amount()));
+        return invalidAmount(request)
+            .or(() -> invalidUser(request))
+            .orElseGet(() -> transfer(request.emailFrom(), request.emailTo(), request.amount()));
     }
 
     public ApiResponse balance(@NonNull String email) {
@@ -78,6 +77,13 @@ public class AccountService {
             .orElseGet(() -> ApiResponse.accountNotFound(email));
     }
 
+    /**
+     * Performs an atomic withdrawal operation from a given account. Looks a bit complicated, but covers all invariants:
+     * when account does not exist, when account has insufficient funds, and when withdrawal is possible.
+     * <p>
+     * Side effect is used to capture the fact that account has insufficient funds, because DAO call can only return
+     * {@link Account} instance or null.
+     */
     private ApiResponse withdraw(String email, BigDecimal amount) {
         Capture capture = new Capture();
 
@@ -88,7 +94,19 @@ public class AccountService {
             .orElseGet(() -> ApiResponse.accountNotFound(email));
     }
 
-    private Optional<ApiResponse> invalidAmount(AmountValidateSupport request) {
+    private ApiResponse transfer(@NonNull String emailFrom, @NonNull String emailTo, @NonNull BigDecimal amount) {
+        Capture capture = new Capture();
+
+        return accountDao.retrieve(emailTo)
+            .map(aTo -> accountDao.transfer(emailFrom, aTo, amount, a -> testAndCapture(amount, a, capture))
+                .map(a -> capture.captured()
+                    .map(ApiResponse::error)
+                    .orElseGet(() -> ApiResponse.transferred(emailFrom, emailTo)))
+                .orElseGet(() -> ApiResponse.accountNotFound(emailFrom)))
+            .orElseGet(() -> ApiResponse.accountNotFound(emailTo));
+    }
+
+    private static Optional<ApiResponse> invalidAmount(AmountValidateSupport request) {
         return request.validAmount() ? Optional.empty() : Optional.of(ApiResponse.error("Invalid amount"));
     }
 
@@ -108,11 +126,11 @@ public class AccountService {
      * Checks user profile by email. If profile not found or inactive, returns corresponding response.
      */
     private Optional<ApiResponse> invalidUser(String email) {
-        var ou = userDao.retrieve(email);
-        var res = ou.isEmpty() ? ApiResponse.userNotFound(email)
-            : ou.filter(User::inactive).map(u -> ApiResponse.inactive()).orElse(null);
+        var user = userDao.retrieve(email);
+        var response = user.isEmpty() ? ApiResponse.userNotFound(email)
+            : user.filter(User::inactive).map(u -> ApiResponse.inactive()).orElse(null);
 
-        return Optional.ofNullable(res);
+        return Optional.ofNullable(response);
     }
 
     /**

@@ -30,8 +30,15 @@ public class AccountDao extends InMemoryDao<String, Account> {
         return updated(email, a -> canWithdraw.test(a) ? a.withdrawed(amount) : a);
     }
 
-    public Optional<Account> transfer(@NonNull String emailFrom, @NonNull String emailTo, @NonNull BigDecimal amount) {
-        return Optional.empty();
+    /**
+     * Performs withdraw first, so any subsequent calls to sender account will see that change, and if no errors
+     * performs deposit to the receiver account from an argument. No synchronisation is required for a receiver, because
+     * deposit operation has no conditions.
+     */
+    public Optional<Account> transfer(@NonNull String emailFrom, @NonNull Account accountTo, @NonNull BigDecimal amount,
+        Predicate<Account> canWithdraw) {
+        return updated(emailFrom, a -> canWithdraw.test(a) ? a.transferredTo(amount, accountTo.email()) : a)
+            .flatMap(a -> stored(accountTo.email(), accountTo.receivedFrom(amount, emailFrom)));
     }
 
     public Optional<Account> retrieve(@NonNull String email) {

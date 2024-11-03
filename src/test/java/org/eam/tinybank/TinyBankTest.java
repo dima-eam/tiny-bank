@@ -102,7 +102,7 @@ class TinyBankTest {
             .andExpect(status().isBadRequest())
             .andExpect(content().string(containsString("Invalid amount")));
 
-        amount = BigDecimal.valueOf(RANDOM.nextDouble() * 100).setScale(2, RoundingMode.HALF_UP);
+        amount = randomAmount();
         depositRequest = new DepositRequest(userRequest.email(), amount);
         mockMvc.perform(
                 post("/api/account/deposit").contentType(APPLICATION_JSON_VALUE).content(asString(depositRequest)))
@@ -142,7 +142,7 @@ class TinyBankTest {
                 put("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest1)))
             .andExpect(status().isOk());
 
-        var amount = BigDecimal.valueOf(RANDOM.nextDouble() * 100).setScale(2, RoundingMode.HALF_UP);
+        var amount = randomAmount();
         var depositRequest = new DepositRequest(userRequest1.email(), amount);
         mockMvc.perform(
                 post("/api/account/deposit").contentType(APPLICATION_JSON_VALUE).content(asString(depositRequest)))
@@ -152,16 +152,43 @@ class TinyBankTest {
         mockMvc.perform(put("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(userRequest2)))
             .andExpect(status().isOk());
 
+        var transferRequest = new TransferRequest(userRequest1.email(), userRequest2.email(), BigDecimal.TEN);
+        mockMvc.perform( // Check error when no recipient account
+                post("/api/account/transfer").contentType(APPLICATION_JSON_VALUE).content(asString(transferRequest)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string(containsString("Account not found: email=%s".formatted(userRequest2.email()))));
+
+        transferRequest = new TransferRequest(userRequest2.email(), userRequest1.email(), BigDecimal.TEN);
+        mockMvc.perform( // check error when no sender account
+                post("/api/account/transfer").contentType(APPLICATION_JSON_VALUE).content(asString(transferRequest)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string(containsString("Account not found: email=%s".formatted(userRequest2.email()))));
+
         var accountRequest2 = new CreateAccountRequest(userRequest2.email());
         mockMvc.perform(
                 put("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest2)))
             .andExpect(status().isOk());
 
-        var transferRequest = new TransferRequest(userRequest1.email(), userRequest2.email(), BigDecimal.TEN);
+        transferRequest = new TransferRequest(userRequest1.email(), userRequest2.email(), BigDecimal.TEN);
         mockMvc.perform(
                 post("/api/account/transfer").contentType(APPLICATION_JSON_VALUE).content(asString(transferRequest)))
             .andExpect(status().isOk())
-            .andExpect(content().string(containsString("Funds transferred")));
+            .andExpect(content().string(containsString("Funds transferred: from=%s, to=%s"
+                .formatted(userRequest1.email(), userRequest2.email()))));
+
+        mockMvc.perform(post("/api/account/balance?email=%s".formatted(userRequest1.email())))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("Balance: %s".formatted(amount.subtract(BigDecimal.TEN)))));
+
+        mockMvc.perform(post("/api/account/history?email=%s".formatted(userRequest1.email())))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("description=Transfer to %s, amount=10"
+                .formatted(userRequest2.email()))));
+
+        mockMvc.perform(post("/api/account/history?email=%s".formatted(userRequest2.email())))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("description=Receive from %s, amount=10"
+                .formatted(userRequest1.email()))));
     }
 
     @Test
@@ -199,6 +226,10 @@ class TinyBankTest {
 
     private static CreateUserRequest createUserRequest() {
         return new CreateUserRequest("test", "test", RandomStringUtils.randomAlphabetic(10) + "@test.com");
+    }
+
+    private static BigDecimal randomAmount() {
+        return BigDecimal.valueOf(10 + RANDOM.nextDouble() * 1000).setScale(2, RoundingMode.HALF_UP);
     }
 
 }
