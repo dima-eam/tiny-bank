@@ -46,14 +46,48 @@ Current implementation has six endpoints, allowing account management, getting c
 6. `/api/account/history`- returns account history of transactions, **not paginated**, or error if user is inactive, or
    account does not exist
 
+## How to Run
+
+> First, make sure that you have JDK 21 installed, and both JAV_HOME and runtime java points to the right version.
+
+To build a "fat JAR" one can simply run Maven Wrapper from project root directory:
+
+```
+./mvnw clean package
+```
+
+After successful build, the JAR ias stored in _target_ folder, and can be run using
+
+```
+java -jar target/demo-0.0.1-SNAPSHOT.jar
+```
+
+Or simply run [TinyBankApplication](src/main/java/org/eam/tinybank/TinyBankApplication.java) from IDE.
+
+## How to Test
+
+Having application up and running, one can send JSON requests to the service endpoints, because current implementation
+has no Swagger or similar tools. The easiest way is to use Postman, Intellij plugin, or Intellij HTTP scratch:
+
+```js
+PUT http://localhost:8080/api/user/create
+Content-Type: application/json
+
+{
+  "firstname": "test",
+  "lastname": "test",
+  "email": "test@test.com"
+}
+```
+
 ## Implementation Details
 
 Java version is 21, using Java optionals, records and string interpolation. Frameworks and libraries used are Spring
 Boot and Web, Spring Test, Lombok. Build tool is Maven, provided as a wrapper instance along with the code.
 Implementation has the following assumptions:
 
-1. In-memory storage is custom and based on Java map, and not an embedded database (like H2), thus no transaction
-   support, nor atomicity available, only thread safety
+1. In-memory storage is custom and based on Java map and not an embedded database (like H2), thus no transaction
+   support available, only thread safety and limited atomicity
 2. There are no complex input validations
 3. REST endpoints are not secured, and there are no passwords for users
 4. REST endpoint calls are synchronous
@@ -61,3 +95,4 @@ Implementation has the following assumptions:
 6. There is no logging
 7. There are no real integration tests, only MockMVC ones
 8. History endpoint does not paginate results
+9. There is no Swagger or similar tools to ease testing
