@@ -10,6 +10,7 @@ import org.eam.tinybank.api.TransferRequest;
 import org.eam.tinybank.api.WithdrawRequest;
 import org.eam.tinybank.service.AccountService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,12 +50,12 @@ class AccountController implements RestSupport {
         return responseFrom(accountService.transfer(request));
     }
 
-    @PostMapping(path = "balance", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = "balance", produces = APPLICATION_JSON_VALUE)
     ResponseEntity<ApiResponse> balance(@RequestParam String email) {
         return responseFrom(accountService.balance(email));
     }
 
-    @PostMapping(path = "history", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = "history", produces = APPLICATION_JSON_VALUE)
     ResponseEntity<ApiResponse> history(@RequestParam String email) {
         return responseFrom(accountService.history(email));
     }

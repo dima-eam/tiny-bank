@@ -3,6 +3,7 @@ package org.eam.tinybank;
 import static org.eam.tinybank.util.CommonJsonMapper.asString;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -177,16 +178,16 @@ class TinyBankTest {
             .andExpect(content().string(containsString("Funds transferred: from=%s, to=%s"
                 .formatted(userRequest1.email(), userRequest2.email()))));
 
-        mockMvc.perform(post("/api/account/balance?email=%s".formatted(userRequest1.email())))
+        mockMvc.perform(get("/api/account/balance?email=%s".formatted(userRequest1.email())))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("Balance: %s".formatted(amount.subtract(BigDecimal.TEN)))));
 
-        mockMvc.perform(post("/api/account/history?email=%s".formatted(userRequest1.email())))
+        mockMvc.perform(get("/api/account/history?email=%s".formatted(userRequest1.email())))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("description=Transfer to %s, amount=10"
                 .formatted(userRequest2.email()))));
 
-        mockMvc.perform(post("/api/account/history?email=%s".formatted(userRequest2.email())))
+        mockMvc.perform(get("/api/account/history?email=%s".formatted(userRequest2.email())))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("description=Receive from %s, amount=10"
                 .formatted(userRequest1.email()))));
@@ -215,11 +216,11 @@ class TinyBankTest {
                 post("/api/account/withdraw").contentType(APPLICATION_JSON_VALUE).content(asString(withdrawRequest)))
             .andExpect(status().isOk());
 
-        mockMvc.perform(post("/api/account/balance?email=%s".formatted(userRequest.email())))
+        mockMvc.perform(get("/api/account/balance?email=%s".formatted(userRequest.email())))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("Balance: 990.00")));
 
-        mockMvc.perform(post("/api/account/history?email=%s".formatted(userRequest.email())))
+        mockMvc.perform(get("/api/account/history?email=%s".formatted(userRequest.email())))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("description=Deposit, amount=1000.00")))
             .andExpect(content().string(containsString("description=Withdraw, amount=10.00")));
