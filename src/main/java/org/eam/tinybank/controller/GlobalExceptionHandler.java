@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 /**
- * Processes all unexpected exceptions to produce same {@link ApiResponse} as for regular calls.
+ * Processes all unexpected exceptions/errors to produce same {@link ApiResponse} as for regular calls.
  */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(value = RuntimeException.class)
-    public ResponseEntity<ApiResponse> exception(RuntimeException exception) {
+    @ExceptionHandler(value = Throwable.class)
+    public ResponseEntity<ApiResponse> exception(Throwable exception) {
         return new ResponseEntity<>(ApiResponse.error(exception.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

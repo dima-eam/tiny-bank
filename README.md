@@ -56,13 +56,15 @@ To build a "fat JAR" one can simply run Maven Wrapper from project root director
 ./mvnw clean package
 ```
 
-After successful build, the JAR ias stored in _target_ folder, and can be run using
+After successful build, the JAR ias stored in _target_ folder, and can be run from terminal using
 
 ```
 java -jar target/demo-0.0.1-SNAPSHOT.jar
 ```
 
-Or simply run [TinyBankApplication](src/main/java/org/eam/tinybank/TinyBankApplication.java) from IDE.
+To stop the app, just use Ctrl+C, as for any other console program.
+Another way to launch the app is simply run 
+[TinyBankApplication](src/main/java/org/eam/tinybank/TinyBankApplication.java) from IDE.
 
 ## How to Test
 
@@ -82,8 +84,9 @@ Content-Type: application/json
 
 ## Implementation Details
 
-Java version is 21, using Java optionals, records and ConcurrentHashMap as storage. Frameworks and libraries used are 
-Spring Boot and Web, Spring Test, Lombok. Build tool is Maven, provided as a wrapper instance along with the code.
+Java version is 21, using Java optionals and lambda functions, records and ConcurrentHashMap as storage. Frameworks and
+libraries used are Spring Boot and Web, Spring Test, Lombok. Build tool is Maven, provided as a wrapper instance along
+with the code.
 Implementation has the following assumptions:
 
 1. In-memory storage is custom and based on Java map and not an embedded database (like H2), thus no transaction
