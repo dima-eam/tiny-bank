@@ -64,7 +64,7 @@ public record Account(@NonNull String email, @NonNull BigDecimal balance, @NonNu
     }
 
     /**
-     * Auxiliary class representing an account operation, either deposit, or withdraw (but no transfer).
+     * Auxiliary class representing an account operation, like deposit or withdraw.
      */
     private record Operation(long timestamp, @NonNull String description, @NonNull BigDecimal amount) {
 
