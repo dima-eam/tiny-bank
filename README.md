@@ -48,7 +48,7 @@ Current implementation has six endpoints, allowing account management, getting c
 
 ## How to Run
 
-> First, make sure that you have JDK 21 installed, and both JAV_HOME and runtime java points to the right version.
+> First, make sure that you have JDK 21 installed, and both JAVA_HOME and runtime java points to the right version.
 
 To build a "fat JAR" one can simply run Maven Wrapper from project root directory:
 
