@@ -24,7 +24,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
 /**
- * Tests ALL application endpoints and their possible outcomes, generating a random email for each test execution.
+ * Tests ALL application endpoints and their possible outcomes, generating a random email for each test execution. Some
+ * tests are overlapping.
  */
 @SpringBootTest
 @AutoConfigureMockMvc

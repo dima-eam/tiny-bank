@@ -10,9 +10,12 @@ import lombok.NonNull;
 public record TransferRequest(@NonNull String emailFrom, @NonNull String emailTo, @NonNull BigDecimal amount) implements
     UserValidateSupport, AmountValidateSupport {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Set<String> emailsToCheck() {
-       return Set.of(emailFrom, emailTo);
+        return Set.of(emailFrom, emailTo);
     }
 
 }

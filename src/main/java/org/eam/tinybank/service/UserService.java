@@ -2,6 +2,7 @@ package org.eam.tinybank.service;
 
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.eam.tinybank.api.ApiResponse;
 import org.eam.tinybank.api.CreateUserRequest;
 import org.eam.tinybank.dao.UserDao;
@@ -20,12 +21,12 @@ public class UserService {
     /**
      * Checks if request is valid, and stores new user record. If user email exists, returns a specific message.
      */
-    public ApiResponse create(CreateUserRequest request) {
+    public ApiResponse create(@NonNull CreateUserRequest request) {
         return invalid(request)
             .orElseGet(() -> create(User.from(request)));
     }
 
-    public ApiResponse deactivate(String email) {
+    public ApiResponse deactivate(@NonNull String email) {
         return userDao.deactivate(email)
             .map(u -> ApiResponse.deactivated())
             .orElseGet(() -> ApiResponse.userNotFound(email));

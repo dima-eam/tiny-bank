@@ -18,8 +18,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Encapsulates endpoints for account operations, such as create and deposit. User must have an account created
- * beforehand.
+ * Encapsulates endpoints for account operations, such as create and deposit. User must have a user profile created
+ * beforehand. NOTE that there are only two possible HTTP statuses in responses: 200 OK and 400 BAD REQUEST, even though
+ * 201 CREATED might be useful.
  */
 @RestController()
 @RequestMapping("/api/account")

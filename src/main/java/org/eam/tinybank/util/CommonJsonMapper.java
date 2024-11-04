@@ -2,8 +2,10 @@ package org.eam.tinybank.util;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 
 /**
@@ -16,8 +18,8 @@ public final class CommonJsonMapper {
         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     @SneakyThrows
-    public static <T> String asString(T value) {
-        return INSTANCE.writeValueAsString(value);
+    public static <T> String asString(@NonNull T value) {
+        return INSTANCE.writeValueAsString(Objects.requireNonNull(value, "Given value is null, can't serialize"));
     }
 
 }

@@ -18,7 +18,7 @@ public class AccountDao extends InMemoryDao<String, Account> {
     }
 
     public Optional<Account> deposit(@NonNull String email, @NonNull BigDecimal amount) {
-        return updated(email, account -> account.deposited(amount));
+        return updated(email, a -> a.deposited(amount));
     }
 
     /**
@@ -32,15 +32,19 @@ public class AccountDao extends InMemoryDao<String, Account> {
 
     /**
      * Performs withdraw first, so any subsequent calls to sender account will see that change, and if no errors
-     * performs deposit to the receiver account from an argument. No synchronisation is required for a receiver, because
-     * deposit operation has no conditions.
+     * performs deposit to the receiver account. No synchronisation is required for a receiver, because deposit
+     * operation has no conditions, and performed atomically. NOTE that due to no transactional nature of this
+     * implementation data may be inconsistent in case of failure after withdrawal.
      */
-    public Optional<Account> transfer(@NonNull String emailFrom, @NonNull Account accountTo, @NonNull BigDecimal amount,
+    public Optional<Account> transfer(@NonNull String emailFrom, @NonNull String emailTo, @NonNull BigDecimal amount,
         Predicate<Account> canWithdraw) {
-        return updated(emailFrom, a -> canWithdraw.test(a) ? a.transferredTo(amount, accountTo.email()) : a)
-            .flatMap(a -> stored(accountTo.email(), accountTo.receivedFrom(amount, emailFrom)));
+        return updated(emailFrom, a -> canWithdraw.test(a) ? a.transferredTo(amount, emailTo) : a)
+            .flatMap(aFrom -> updated(emailTo, a -> a.receivedFrom(amount, emailFrom)));
     }
 
+    /**
+     * Returns an account for a given email, e.g. to display some details.
+     */
     public Optional<Account> retrieve(@NonNull String email) {
         return retrieved(email);
     }

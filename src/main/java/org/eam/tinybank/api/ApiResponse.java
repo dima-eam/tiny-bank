@@ -59,11 +59,11 @@ public record ApiResponse(@NonNull String message, @NonNull Status status) {
         return new ApiResponse("Balance: %s".formatted(balance.toPlainString()), Status.SUCCESS);
     }
 
-    public static ApiResponse error(String message) {
+    public static ApiResponse error(@NonNull String message) {
         return new ApiResponse(message, Status.FAIL);
     }
 
-    public static ApiResponse history(List<String> operations) {
+    public static ApiResponse history(@NonNull List<String> operations) {
         return new ApiResponse("History: %s".formatted(operations), Status.SUCCESS);
     }
 

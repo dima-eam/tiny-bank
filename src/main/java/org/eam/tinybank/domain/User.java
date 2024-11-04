@@ -11,7 +11,7 @@ public record User(@NonNull String firstname, @NonNull String lastname, @NonNull
     /**
      * Creates a user record from given request, and active status.
      */
-    public static User from(CreateUserRequest request) {
+    public static User from(@NonNull CreateUserRequest request) {
         return new User(request.firstname(), request.lastname(), request.email(), Status.ACTIVATED);
     }
 

@@ -19,7 +19,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Encapsulates validation and conversion logic for account management operations, and calls data access layer. Account
- * operation are only allowed for existing and active users. NOTE that email is not validated here.
+ * operation are only allowed for existing and active users, so every method has a check, and also amount is checked
+ * whether needed. NOTE that email is not validated here.
  */
 @Component
 @AllArgsConstructor
@@ -94,11 +95,19 @@ public class AccountService {
             .orElseGet(() -> ApiResponse.accountNotFound(email));
     }
 
+    /**
+     * Performs an atomic withdrawal operation from a given account, followed by atomic deposit to receiver account, but
+     * there is no transactional support. Looks a bit complicated, but covers all invariants: when any account does not
+     * exist, when sender account has insufficient funds, and when withdrawal is possible.
+     * <p>
+     * Side effect is used to capture the fact that sender account has insufficient funds, because DAO call can only
+     * return {@link Account} instance or null.
+     */
     private ApiResponse transfer(@NonNull String emailFrom, @NonNull String emailTo, @NonNull BigDecimal amount) {
         Capture capture = new Capture();
 
-        return accountDao.retrieve(emailTo)
-            .map(aTo -> accountDao.transfer(emailFrom, aTo, amount, a -> testAndCapture(amount, a, capture))
+        return accountDao.retrieve(emailTo) // this only needed to check if receiver account exists
+            .map(aTo -> accountDao.transfer(emailFrom, emailTo, amount, a -> testAndCapture(amount, a, capture))
                 .map(a -> capture.captured()
                     .map(ApiResponse::error)
                     .orElseGet(() -> ApiResponse.transferred(emailFrom, emailTo)))
