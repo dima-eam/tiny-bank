@@ -82,8 +82,8 @@ Content-Type: application/json
 
 ## Implementation Details
 
-Java version is 21, using Java optionals, records and string interpolation. Frameworks and libraries used are Spring
-Boot and Web, Spring Test, Lombok. Build tool is Maven, provided as a wrapper instance along with the code.
+Java version is 21, using Java optionals, records and ConcurrentHashMap as storage. Frameworks and libraries used are 
+Spring Boot and Web, Spring Test, Lombok. Build tool is Maven, provided as a wrapper instance along with the code.
 Implementation has the following assumptions:
 
 1. In-memory storage is custom and based on Java map and not an embedded database (like H2), thus no transaction
