@@ -4,8 +4,8 @@ import static org.eam.tinybank.util.CommonJsonMapper.asString;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -44,19 +44,19 @@ class TinyBankTest {
     void shouldCreateAndDeactivateUser() throws Exception {
         var request = createUserRequest();
 
-        mockMvc.perform(put("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(request)))
+        mockMvc.perform(post("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(request)))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("User was created")));
 
-        mockMvc.perform(put("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(request)))
+        mockMvc.perform(post("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(request)))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("User exists")));
 
-        mockMvc.perform(post("/api/user/deactivate?email=" + request.email()))
+        mockMvc.perform(patch("/api/user/deactivate?email=" + request.email()))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("User was deactivated")));
 
-        mockMvc.perform(post("/api/user/deactivate?email=test@test.com"))
+        mockMvc.perform(patch("/api/user/deactivate?email=test@test.com"))
             .andExpect(status().isBadRequest())
             .andExpect(content().string(containsString("User not found: email=test@test.com")));
     }
@@ -68,17 +68,17 @@ class TinyBankTest {
     void shouldCreateUserAndAccount() throws Exception {
         var request = createUserRequest();
 
-        mockMvc.perform(put("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(request)))
+        mockMvc.perform(post("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(request)))
             .andExpect(status().isOk());
 
         var accountRequest = new CreateAccountRequest(request.email());
         mockMvc.perform(
-                put("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest)))
+                post("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest)))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("Account was created")));
 
         mockMvc.perform(
-                put("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest)))
+                post("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest)))
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("Account exists")));
     }
@@ -89,12 +89,12 @@ class TinyBankTest {
     @Test
     void shouldDepositAndWithdraw() throws Exception {
         var userRequest = createUserRequest();
-        mockMvc.perform(put("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(userRequest)))
+        mockMvc.perform(post("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(userRequest)))
             .andExpect(status().isOk());
 
         var accountRequest = new CreateAccountRequest(userRequest.email());
         mockMvc.perform(
-                put("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest)))
+                post("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest)))
             .andExpect(status().isOk());
 
         var amount = BigDecimal.ZERO;
@@ -136,12 +136,12 @@ class TinyBankTest {
     @Test
     void shouldTransferFunds() throws Exception {
         var userRequest1 = createUserRequest();
-        mockMvc.perform(put("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(userRequest1)))
+        mockMvc.perform(post("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(userRequest1)))
             .andExpect(status().isOk());
 
         var accountRequest1 = new CreateAccountRequest(userRequest1.email());
         mockMvc.perform(
-                put("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest1)))
+                post("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest1)))
             .andExpect(status().isOk());
 
         var amount = randomAmount();
@@ -151,7 +151,7 @@ class TinyBankTest {
             .andExpect(status().isOk());
 
         var userRequest2 = createUserRequest();
-        mockMvc.perform(put("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(userRequest2)))
+        mockMvc.perform(post("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(userRequest2)))
             .andExpect(status().isOk());
 
         var transferRequest = new TransferRequest(userRequest1.email(), userRequest2.email(), BigDecimal.TEN);
@@ -168,7 +168,7 @@ class TinyBankTest {
 
         var accountRequest2 = new CreateAccountRequest(userRequest2.email());
         mockMvc.perform(
-                put("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest2)))
+                post("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest2)))
             .andExpect(status().isOk());
 
         transferRequest = new TransferRequest(userRequest1.email(), userRequest2.email(), BigDecimal.TEN);
@@ -196,12 +196,12 @@ class TinyBankTest {
     @Test
     void shouldReturnBalanceAndHistory() throws Exception {
         var userRequest = createUserRequest();
-        mockMvc.perform(put("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(userRequest)))
+        mockMvc.perform(post("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(userRequest)))
             .andExpect(status().isOk());
 
         var accountRequest = new CreateAccountRequest(userRequest.email());
         mockMvc.perform(
-                put("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest)))
+                post("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest)))
             .andExpect(status().isOk());
 
         var amount = BigDecimal.valueOf(1000).setScale(2, RoundingMode.HALF_UP);
