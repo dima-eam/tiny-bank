@@ -7,8 +7,8 @@ import org.eam.tinybank.api.ApiResponse;
 import org.eam.tinybank.api.CreateUserRequest;
 import org.eam.tinybank.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,12 +25,12 @@ class UserController implements RestSupport {
 
     private final UserService userService;
 
-    @PutMapping(path = "create", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PostMapping(path = "create", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     ResponseEntity<ApiResponse> create(@RequestBody CreateUserRequest request) {
         return responseFrom(userService.create(request));
     }
 
-    @PostMapping(path = "deactivate", produces = APPLICATION_JSON_VALUE)
+    @PatchMapping(path = "deactivate", produces = APPLICATION_JSON_VALUE)
     ResponseEntity<ApiResponse> deactivate(@RequestParam String email) {
         return responseFrom(userService.deactivate(email));
     }
