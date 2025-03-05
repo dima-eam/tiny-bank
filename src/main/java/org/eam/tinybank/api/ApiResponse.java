@@ -3,6 +3,7 @@ package org.eam.tinybank.api;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.NonNull;
+import org.springframework.http.HttpStatus;
 
 /**
  * Encapsulates the result of endpoint calls. NOTE that it is expected that class instances are created via factory
@@ -44,36 +45,65 @@ public record ApiResponse(@NonNull String message, @NonNull Status status) {
     }
 
     public static ApiResponse userNotFound(@NonNull String email) {
-        return new ApiResponse("User not found: email=%s".formatted(email), Status.FAIL);
+        return new ApiResponse("User not found: email=%s".formatted(email), Status.FAILED);
     }
 
     public static ApiResponse accountNotFound(@NonNull String email) {
-        return new ApiResponse("Account not found: email=%s".formatted(email), Status.FAIL);
+        return new ApiResponse("Account not found: email=%s".formatted(email), Status.FAILED);
     }
 
     public static ApiResponse inactive() {
-        return new ApiResponse("User is inactive", Status.FAIL);
+        return new ApiResponse("User is inactive", Status.FAILED);
     }
 
     public static ApiResponse balance(@NonNull BigDecimal balance) {
         return new ApiResponse("Balance: %s".formatted(balance.toPlainString()), Status.SUCCESS);
     }
 
-    public static ApiResponse error(@NonNull String message) {
-        return new ApiResponse(message, Status.FAIL);
+    public static ApiResponse invalidEmail(@NonNull String email) {
+        return new ApiResponse("Invalid email: %s".formatted(email), Status.FAILED);
+    }
+
+    public static ApiResponse invalidAmount(@NonNull BigDecimal amount) {
+        return new ApiResponse("Invalid amount: %s".formatted(amount), Status.FAILED);
+    }
+
+    public static ApiResponse insufficientFunds(@NonNull String email) {
+        return new ApiResponse("Insufficient funds: %s".formatted(email), Status.FAILED);
     }
 
     public static ApiResponse history(@NonNull List<String> operations) {
         return new ApiResponse("History: %s".formatted(operations), Status.SUCCESS);
     }
 
-    public boolean failed() {
-        return status == Status.FAIL;
+    public static ApiResponse error(@NonNull Throwable exception) {
+        return new ApiResponse(exception.getMessage(), Status.ERROR);
+    }
+
+    /**
+     * Evaluates HTTP status code based on API response created in services.
+     */
+    public HttpStatus statusCode() {
+        return switch (status) {
+            case SUCCESS -> HttpStatus.OK;
+            case ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+            case FAILED -> HttpStatus.BAD_REQUEST;
+        };
     }
 
     private enum Status {
+        /**
+         * Request processed successfully
+         */
         SUCCESS,
-        FAIL
+        /**
+         * Failed to process due to wrong request parameters
+         */
+        FAILED,
+        /**
+         * Failed due to exception/unexpected error
+         */
+        ERROR
     }
 
 }

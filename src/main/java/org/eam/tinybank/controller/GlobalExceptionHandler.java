@@ -14,7 +14,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = Throwable.class)
     public ResponseEntity<ApiResponse> exception(Throwable exception) {
-        return new ResponseEntity<>(ApiResponse.error(exception.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(ApiResponse.error(exception), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }
