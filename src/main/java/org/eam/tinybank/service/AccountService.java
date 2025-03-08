@@ -13,8 +13,10 @@ import org.eam.tinybank.api.TransferRequest;
 import org.eam.tinybank.api.UserValidateSupport;
 import org.eam.tinybank.api.WithdrawRequest;
 import org.eam.tinybank.domain.AccountEntity;
+import org.eam.tinybank.domain.HistoryEntity;
 import org.eam.tinybank.domain.UserEntity;
 import org.eam.tinybank.repository.AccountRepository;
+import org.eam.tinybank.repository.HistoryRepository;
 import org.eam.tinybank.repository.UserRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Encapsulates validation and conversion logic for account management operations, and calls data access layer. Account
  * operation are only allowed for existing and active users, so every method has a check, and also amount is checked
- * whether needed. NOTE that email is not validated here.
+ * whether needed.
+ * <p>
+ * NOTE that email is not validated here.
  */
 @Component
 @AllArgsConstructor
@@ -30,6 +34,7 @@ public class AccountService {
 
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
+    private final HistoryRepository historyRepository;
 
     /**
      * Checks if account exists, and create one if it doesn't.
@@ -46,7 +51,11 @@ public class AccountService {
             .orElseGet(() -> updateInTransaction(request.email(),
                                                  a -> Optional.empty(),
                                                  a -> a.deposited(request.amount()),
-                                                 a -> ApiResponse.deposited(a.getBalance())));
+                                                 a -> {
+                                                     historyRepository.save(
+                                                         HistoryEntity.deposit(a.getEmail(), request.amount()));
+                                                     return ApiResponse.deposited(a.getBalance());
+                                                 }));
     }
 
     @Transactional
@@ -58,7 +67,11 @@ public class AccountService {
                                                      ? Optional.empty()
                                                      : Optional.of(ApiResponse.insufficientFunds(a.getEmail())),
                                                  a -> a.withdrawed(request.amount()),
-                                                 a -> ApiResponse.withdrawed(a.getBalance())));
+                                                 a -> {
+                                                     historyRepository.save(
+                                                         HistoryEntity.withdraw(a.getEmail(), request.amount()));
+                                                     return ApiResponse.withdrawed(a.getBalance());
+                                                 }));
     }
 
     @Transactional
@@ -76,11 +89,10 @@ public class AccountService {
     }
 
     public ApiResponse history(@NonNull String email) {
-        return ApiResponse.accountExists(); // TODO
-//        return invalidUser(email)
-//            .orElseGet(() -> accountDao.retrieve(email)
-//                .map(a -> ApiResponse.history(a.history().asString()))
-//                .orElseGet(() -> ApiResponse.accountNotFound(email)));
+        return invalidUser(email)
+            .orElseGet(() -> accountRepository.existsById(email)
+                ? ApiResponse.history(historyRepository.findAllByEmail(email))
+                : ApiResponse.accountNotFound(email));
     }
 
     /**
@@ -132,6 +144,8 @@ public class AccountService {
     private ApiResponse transfer(AccountEntity aFrom, AccountEntity aTo, @NonNull BigDecimal amount) {
         accountRepository.save(aFrom.withdrawed(amount));
         accountRepository.save(aTo.deposited(amount));
+        historyRepository.save(HistoryEntity.transferTo(aFrom.getEmail(), aTo.getEmail(), amount));
+        historyRepository.save(HistoryEntity.receiveFrom(aTo.getEmail(), aFrom.getEmail(), amount));
 
         return ApiResponse.transferred(aFrom.getEmail(), aTo.getEmail());
     }

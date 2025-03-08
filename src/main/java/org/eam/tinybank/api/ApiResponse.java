@@ -3,6 +3,7 @@ package org.eam.tinybank.api;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.NonNull;
+import org.eam.tinybank.domain.HistoryEntity;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -72,8 +73,9 @@ public record ApiResponse(@NonNull String message, @NonNull Status status) {
         return new ApiResponse("Insufficient funds: %s".formatted(email), Status.FAILED);
     }
 
-    public static ApiResponse history(@NonNull List<String> operations) {
-        return new ApiResponse("History: %s".formatted(operations), Status.SUCCESS);
+    public static ApiResponse history(List<HistoryEntity> operations) {
+        return new ApiResponse("History: %s".formatted(operations.stream().map(HistoryEntity::asString).toList()),
+                               Status.SUCCESS);
     }
 
     public static ApiResponse error(@NonNull Throwable exception) {

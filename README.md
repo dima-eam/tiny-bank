@@ -89,13 +89,12 @@ libraries used are Spring Boot and Web, Spring Test, Lombok. Build tool is Maven
 with the code.
 Implementation has the following assumptions:
 
-1. In-memory storage is custom and based on Java map and not an embedded database (like H2), thus no transaction
-   support available, only thread safety and limited atomicity (TODO Spring Data)
+1. In-memory H2 storage with transaction support. Easily can be switched to Postgres/etc
 2. There are no complex input validations
 3. REST endpoints are not secured, and there are no passwords for users (TODO Spring Security JWT/Oauth)
 4. REST endpoint calls are synchronous (TODO Reactor with backpressure test)
 5. String messages are hardcoded in place
-6. There is no logging (TODO add Lombok)
+6. There is no logging (TODO add Lombok log)
 7. There are no real integration tests, only MockMVC ones (TODO)
 8. History endpoint does not paginate results (TODO add sample web page)
 9. There is no Swagger or similar tools to ease testing (TODO add annotations etc)

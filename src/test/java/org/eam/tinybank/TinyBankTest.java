@@ -186,15 +186,15 @@ class TinyBankTest {
             .andExpect(status().isOk())
             .andExpect(content().string(containsString("Balance: %s".formatted(amount.subtract(BigDecimal.TEN)))));
 
-//        mockMvc.perform(get("/api/account/history?email=%s".formatted(userRequest1.email())))
-//            .andExpect(status().isOk())
-//            .andExpect(content().string(containsString("description=Transfer to %s, amount=10"
-//                                                           .formatted(userRequest2.email()))));
-//
-//        mockMvc.perform(get("/api/account/history?email=%s".formatted(userRequest2.email())))
-//            .andExpect(status().isOk())
-//            .andExpect(content().string(containsString("description=Receive from %s, amount=10"
-//                                                           .formatted(userRequest1.email()))));
+        mockMvc.perform(get("/api/account/history?email=%s".formatted(userRequest1.email())))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("description=Transfer to %s, amount=10"
+                                                           .formatted(userRequest2.email()))));
+
+        mockMvc.perform(get("/api/account/history?email=%s".formatted(userRequest2.email())))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("description=Receive from %s, amount=10"
+                                                           .formatted(userRequest1.email()))));
     }
 
     @Test
@@ -300,8 +300,8 @@ class TinyBankTest {
 
         mockMvc.perform(get("/api/account/history?email=%s".formatted(userRequest.email())))
             .andExpect(status().isOk())
-            .andExpect(content().string(containsString("description=Deposit, amount=1000.00")))
-            .andExpect(content().string(containsString("description=Withdraw, amount=10.00")));
+            .andExpect(content().string(containsString("description=Deposit: 1000.00, amount=1000.00")))
+            .andExpect(content().string(containsString("description=Withdraw: 10.00, amount=10.00")));
     }
 
     private static CreateUserRequest createUserRequest() {

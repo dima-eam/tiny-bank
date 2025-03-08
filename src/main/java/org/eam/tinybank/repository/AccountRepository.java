@@ -12,12 +12,12 @@ import org.springframework.stereotype.Repository;
 public interface AccountRepository extends CrudRepository<AccountEntity, String> {
 
     /**
-     * Enables locking on the row being updated to exclude lost updates.
+     * Enables pessimistic locking on the row being updated to exclude lost updates, though allows simultaneous reads.
      * <p>
      * NOTE that this method must be called in the same transaction with update call.
      */
     @Override
-    @Lock(LockModeType.PESSIMISTIC_WRITE) //TODO test with two instances in Docker, compare performance to optimistic
+    @Lock(LockModeType.PESSIMISTIC_READ) // TODO test with two instances in Docker, compare performance to optimistic
     @NonNull
     Optional<AccountEntity> findById(@NonNull String email);
 
