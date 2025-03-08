@@ -14,14 +14,7 @@ interface RestSupport {
      * Simple {@link ResponseEntity} wrapper, evaluating HTTP code from a given response.
      */
     default ResponseEntity<ApiResponse> responseFrom(@NonNull ApiResponse response) {
-        return ResponseEntity.status(statusFrom(response)).body(response);
-    }
-
-    /**
-     * Evaluates HTTP status code based on API response created in services.
-     */
-    private HttpStatus statusFrom(@NonNull ApiResponse response) {
-        return response.failed() ? HttpStatus.BAD_REQUEST : HttpStatus.OK;
+        return ResponseEntity.status(response.statusCode()).body(response);
     }
 
 }
