@@ -63,7 +63,7 @@ java -jar target/demo-0.0.1-SNAPSHOT.jar
 ```
 
 To stop the app, just use Ctrl+C, as for any other console program.
-Another way to launch the app is simply run 
+Another way to launch the app is simply run
 [TinyBankApplication](src/main/java/org/eam/tinybank/TinyBankApplication.java) from IDE.
 
 ## How to Test
@@ -72,13 +72,22 @@ Having application up and running, one can send JSON requests to the service end
 has no Swagger or similar tools. The easiest way is to use Postman, Intellij plugin, or Intellij HTTP scratch:
 
 ```js
-PUT http://localhost:8080/api/user/create
-Content-Type: application/json
+PUT
+http://localhost:8080/api/user/create
+    Content - Type
+:
+application / json
 
 {
-  "firstname": "test",
-  "lastname": "test",
-  "email": "test@test.com"
+    "firstname"
+:
+    "test",
+        "lastname"
+:
+    "test",
+        "email"
+:
+    "test@test.com"
 }
 ```
 
@@ -89,7 +98,8 @@ libraries used are Spring Boot and Web, Spring Test, Lombok. Build tool is Maven
 with the code.
 Implementation has the following assumptions:
 
-1. In-memory H2 storage with transaction support. Easily can be switched to Postgres/etc
+1. By default, uses in-memory H2 storage with transaction support. To run with Postgres as DB, use `postgres` or
+   `docker` Spring profiles, depending on running locally or in Docker.
 2. There are no complex input validations
 3. REST endpoints are not secured, and there are no passwords for users (TODO Spring Security JWT/Oauth)
 4. REST endpoint calls are synchronous (TODO Reactor with backpressure test)

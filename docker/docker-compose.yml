@@ -1,0 +1,23 @@
+---
+
+services:
+    postgres:
+        image: postgres:latest
+        container_name: postgres_db
+        restart: always
+        environment:
+            POSTGRES_DB: account
+            POSTGRES_USER: app
+            POSTGRES_PASSWORD: apptest
+        ports:
+            - "5432:5432"
+
+    tiny-bank:
+        image: localhost:5000/tiny-bank:latest
+        restart: always
+        ports:
+            - "8080:8080"
+        depends_on:
+            - postgres
+        environment:
+            SPRING_PROFILES_ACTIVE: "docker"
