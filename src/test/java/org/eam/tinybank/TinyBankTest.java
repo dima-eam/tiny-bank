@@ -1,6 +1,6 @@
 package org.eam.tinybank;
 
-import static org.eam.tinybank.util.CommonJsonMapper.asString;
+import static org.eam.tinybank.util.Jackson.asString;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;

@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
 import org.eam.tinybank.api.AmountValidateSupport;
 import org.eam.tinybank.api.ApiResponse;
 import org.eam.tinybank.api.CreateAccountRequest;
@@ -30,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 @AllArgsConstructor
+@Log4j2
 public class AccountService {
 
     private final UserRepository userRepository;
@@ -40,6 +42,8 @@ public class AccountService {
      * Checks if account exists, and create one if it doesn't.
      */
     public ApiResponse create(@NonNull CreateAccountRequest request) {
+        log.info("Creating account: email={}", request.email());
+
         return invalidUser(request)
             .orElseGet(() -> create(request.email()));
     }

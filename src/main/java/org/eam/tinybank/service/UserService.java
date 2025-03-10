@@ -3,6 +3,7 @@ package org.eam.tinybank.service;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
 import org.eam.tinybank.api.ApiResponse;
 import org.eam.tinybank.api.CreateUserRequest;
 import org.eam.tinybank.domain.UserEntity;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @AllArgsConstructor
+@Log4j2
 public class UserService {
 
     private final UserRepository userRepository;
@@ -22,6 +24,8 @@ public class UserService {
      * Checks if request is valid, and stores new user record. If user email exists, returns a specific message.
      */
     public ApiResponse create(@NonNull CreateUserRequest request) {
+        log.info("Creating new user: email={}", request.email());
+
         return invalid(request)
             .orElseGet(() -> create(UserEntity.from(request)));
     }
