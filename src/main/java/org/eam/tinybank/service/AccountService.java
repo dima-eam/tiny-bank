@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
 import org.eam.tinybank.api.AmountValidateSupport;
 import org.eam.tinybank.api.ApiResponse;
 import org.eam.tinybank.api.CreateAccountRequest;
@@ -22,14 +23,15 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Encapsulates validation and conversion logic for account management operations, and calls data access layer. Account
- * operation are only allowed for existing and active users, so every method has a check, and also amount is checked
+ * Encapsulates validation and conversion logic for account management operations and calls data access layer. Account
+ * operations are only allowed for existing and active users, so every method has a check, and also amount is checked
  * whether needed.
  * <p>
  * NOTE that email is not validated here.
  */
 @Component
 @AllArgsConstructor
+@Log4j2
 public class AccountService {
 
     private final UserRepository userRepository;
@@ -37,9 +39,11 @@ public class AccountService {
     private final HistoryRepository historyRepository;
 
     /**
-     * Checks if account exists, and create one if it doesn't.
+     * Checks if an account exists and create one if it doesn't.
      */
     public ApiResponse create(@NonNull CreateAccountRequest request) {
+        log.info("Creating account: email={}", request.email());
+
         return invalidUser(request)
             .orElseGet(() -> create(request.email()));
     }
@@ -167,7 +171,7 @@ public class AccountService {
     }
 
     /**
-     * Checks user profile by email. If profile not found or inactive, returns corresponding response.
+     * Checks user profile by email. If the profile is not found or inactive, it returns a corresponding response.
      */
     private Optional<ApiResponse> invalidUser(String email) { // TODO simplify if possible
         var user = userRepository.findById(email);

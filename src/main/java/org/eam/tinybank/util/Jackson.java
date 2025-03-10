@@ -12,14 +12,14 @@ import lombok.SneakyThrows;
  * Encapsulates preconfigured shared instance of {@link ObjectMapper}, which doesn't fail on unknown properties.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class CommonJsonMapper {
+public final class Jackson {
 
-    public static final ObjectMapper INSTANCE = new ObjectMapper()
+    public static final ObjectMapper MAPPER = new ObjectMapper()
         .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     @SneakyThrows
     public static <T> String asString(@NonNull T value) {
-        return INSTANCE.writeValueAsString(Objects.requireNonNull(value, "Given value is null, can't serialize"));
+        return MAPPER.writeValueAsString(Objects.requireNonNull(value, "Given value is null, can't serialize"));
     }
 
 }

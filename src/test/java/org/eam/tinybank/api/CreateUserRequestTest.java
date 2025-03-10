@@ -1,7 +1,7 @@
 package org.eam.tinybank.api;
 
 
-import static org.eam.tinybank.util.CommonJsonMapper.INSTANCE;
+import static org.eam.tinybank.util.Jackson.MAPPER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -14,9 +14,9 @@ class CreateUserRequestTest {
     @Test
     void shouldSerializeDeserialize() throws Exception {
         var request = new CreateUserRequest("test", "test", "test@test.com");
-        var bytes = INSTANCE.writeValueAsBytes(request);
+        var bytes = MAPPER.writeValueAsBytes(request);
 
-        var deserialized = INSTANCE.readValue(bytes, CreateUserRequest.class);
+        var deserialized = MAPPER.readValue(bytes, CreateUserRequest.class);
         assertEquals(request, deserialized);
     }
 
