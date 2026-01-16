@@ -40,7 +40,7 @@ class TinyBankTest {
     private MockMvc mockMvc;
 
     /**
-     * Also tests that create endpoint is idempotent, and deactivate endpoint returns an error.
+     * Also, tests that create endpoint is idempotent, and deactivate endpoint returns an error.
      */
     @Test
     void shouldCreateAndDeactivateUser() throws Exception {
@@ -64,7 +64,7 @@ class TinyBankTest {
     }
 
     /**
-     * Also tests that create endpoint is idempotent.
+     * Also, tests that create endpoint calls are idempotent.
      */
     @Test
     void shouldCreateUserAndAccount() throws Exception {
@@ -156,14 +156,14 @@ class TinyBankTest {
         mockMvc.perform(post("/api/user/create").contentType(APPLICATION_JSON_VALUE).content(asString(userRequest2)))
             .andExpect(status().isOk());
 
-        var transferRequest = new TransferRequest(userRequest1.email(), userRequest2.email(), BigDecimal.TEN);
+        var transferRequest = transferRequest(userRequest1.email(), userRequest2.email(), BigDecimal.TEN);
         mockMvc.perform( // Check error when no recipient account
                          post("/api/account/transfer").contentType(APPLICATION_JSON_VALUE)
                              .content(asString(transferRequest)))
             .andExpect(status().isBadRequest())
             .andExpect(content().string(containsString("Account not found: email=%s".formatted(userRequest2.email()))));
 
-        transferRequest = new TransferRequest(userRequest2.email(), userRequest1.email(), BigDecimal.TEN);
+        transferRequest = transferRequest(userRequest2.email(), userRequest1.email(), BigDecimal.TEN);
         mockMvc.perform( // check error when no sender account
                          post("/api/account/transfer").contentType(APPLICATION_JSON_VALUE)
                              .content(asString(transferRequest)))
@@ -175,7 +175,7 @@ class TinyBankTest {
                 post("/api/account/create").contentType(APPLICATION_JSON_VALUE).content(asString(accountRequest2)))
             .andExpect(status().isOk());
 
-        transferRequest = new TransferRequest(userRequest1.email(), userRequest2.email(), BigDecimal.TEN);
+        transferRequest = transferRequest(userRequest1.email(), userRequest2.email(), BigDecimal.TEN);
         mockMvc.perform(
                 post("/api/account/transfer").contentType(APPLICATION_JSON_VALUE).content(asString(transferRequest)))
             .andExpect(status().isOk())
@@ -254,13 +254,11 @@ class TinyBankTest {
             .andExpect(status().isOk());
 
         var transfers1 = CompletableFuture.runAsync(
-            () -> callMultiple("transfer", new TransferRequest(userRequest1.email(),
-                                                               userRequest2.email(),
-                                                               BigDecimal.ONE)));
+            () -> callMultiple("transfer",
+                               transferRequest(userRequest1.email(), userRequest2.email(), BigDecimal.ONE)));
         var transfers2 = CompletableFuture.runAsync(
-            () -> callMultiple("transfer", new TransferRequest(userRequest2.email(),
-                                                               userRequest1.email(),
-                                                               BigDecimal.ONE)));
+            () -> callMultiple("transfer",
+                               transferRequest(userRequest2.email(), userRequest1.email(), BigDecimal.ONE)));
         CompletableFuture.allOf(transfers1, transfers2).join();
 
         mockMvc.perform(get("/api/account/balance?email=%s".formatted(userRequest1.email())))
@@ -306,6 +304,10 @@ class TinyBankTest {
 
     private static CreateUserRequest createUserRequest() {
         return new CreateUserRequest("test", "test", RandomStringUtils.randomAlphabetic(10) + "@test.com");
+    }
+
+    private static TransferRequest transferRequest(String from, String to, BigDecimal amount) {
+        return new TransferRequest(from, to, amount);
     }
 
     private static BigDecimal randomAmount() {
