@@ -20,7 +20,7 @@
     <properties>
         <java.version>21</java.version>
         <lombok.version>1.18.30</lombok.version>
-        <commons.version>3.15.0</commons.version>
+        <commons.version>3.19.0</commons.version>
     </properties>
 
     <dependencies>
