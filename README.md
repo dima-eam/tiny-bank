@@ -50,7 +50,7 @@ The current implementation has six endpoints, allowing account management, getti
 
 > First, make sure that you have JDK 21 installed, and both JAVA_HOME and runtime java point to Java 21.
 > 
-> Second, if using non-standard Docker env (e.g. Colima), you'll need to set DOCKER_HOME env variable:
+> Second, if using non-standard Docker env (e.g. Colima), you'll need to set the DOCKER_HOME env variable:
 > 
 > export DOCKER_HOST="unix:///Users/<youruser>/.colima/default/docker.sock"
 
