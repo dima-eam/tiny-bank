@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
  * beforehand. NOTE that there are only two possible HTTP statuses in responses: 200 OK and 400 BAD REQUEST, even though
  * 201 CREATED might be useful.
  */
-@RestController()
+@RestController
 @RequestMapping("/api/account")
 @AllArgsConstructor
 class AccountController implements RestSupport {

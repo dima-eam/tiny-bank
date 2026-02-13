@@ -1,9 +1,10 @@
 ---
 
 services:
-    postgres:
-        image: postgres:latest
-        container_name: postgres_db
+
+    postgresml:
+        image: pgvector/pgvector:pg18
+        container_name: postgresml
         restart: always
         environment:
             POSTGRES_DB: account
@@ -11,13 +12,26 @@ services:
             POSTGRES_PASSWORD: apptest
         ports:
             - "5432:5432"
+        volumes:
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    ollama:
+        image: alpine/llama3.2:latest
+        container_name: ollama
+        ports:
+            - "11434:11434"
+        volumes:
+            - ./ollama_models:/root/.ollama
+        environment:
+            - OLLAMA_HOST=0.0.0.0
 
     tiny-bank:
         image: localhost:5000/tiny-bank:latest
+        container_name: tiny-bank
         restart: always
         ports:
             - "8080:8080"
         depends_on:
-            - postgres
+            - postgresml
         environment:
             SPRING_PROFILES_ACTIVE: "docker"
