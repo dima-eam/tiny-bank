@@ -27,7 +27,7 @@ public class AccountEntity {
     private BigDecimal balance;
 
     /**
-     * Creates a user account record from given email, with zero balance.
+     * Creates a user account record from the given email, with zero balance.
      */
     public static AccountEntity from(String email) {
         return new AccountEntity(email, BigDecimal.ZERO);

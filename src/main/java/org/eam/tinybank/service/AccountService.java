@@ -159,7 +159,7 @@ public class AccountService {
     }
 
     /**
-     * Checks all given emails and returns first error found.
+     * Checks all given emails and returns the first error found.
      */
     private Optional<ApiResponse> invalidUser(UserValidateSupport request) {
         return request.emailsToCheck()
